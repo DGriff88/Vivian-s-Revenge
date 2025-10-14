@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.vivian_data/
+.venv/
+*.log
+*.jsonl
+
+.early.coverage
