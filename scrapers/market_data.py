@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,7 +55,7 @@ class MarketDataScraper:
             "end": end,
             "api_key": os.getenv("DATA_API_KEY"),
         }
-        cache_key = f"{symbol}_{start}_{end}.json"
+        cache_key = self._make_cache_key(symbol, start, end)
         cached = self._read_cache(cache_key)
         if cached is not None:
             logger.debug("Cache hit for %s", cache_key)
@@ -124,6 +125,19 @@ class MarketDataScraper:
 
     def _cache_path(self, cache_key: str) -> Path:
         return self._cache_dir / cache_key
+
+    def _make_cache_key(self, *parts: str) -> str:
+        sanitized_parts = (self._sanitize_for_filename(part) for part in parts)
+        return "_".join(sanitized_parts) + ".json"
+
+    @staticmethod
+    def _sanitize_for_filename(value: str) -> str:
+        """Remove characters that are not permitted in Windows filenames."""
+        # Replace characters disallowed on Windows (<>:"/\|?*) and control chars.
+        sanitized = re.sub(r'[<>:"/\\|?*]', "_", value)
+        sanitized = re.sub(r"[\x00-\x1f]", "_", sanitized)
+        # Collapse any sequences of whitespace for readability.
+        return re.sub(r"\s+", "_", sanitized)
 
     def _read_cache(self, cache_key: str) -> Optional[Dict[str, Any]]:
         path = self._cache_path(cache_key)
