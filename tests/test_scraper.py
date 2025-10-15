@@ -12,7 +12,7 @@ from scrapers.market_data import MarketDataScraper, ScraperConfig
 class DummyResponse:
     def __init__(self, payload: Dict[str, Any]) -> None:
         self._payload = payload
-        self.text = "User-agent: *\nAllow: /intraday/"
+        self.text = "User-agent: *\nAllow: /"
 
     def json(self) -> Dict[str, Any]:
         return self._payload
@@ -54,9 +54,28 @@ def test_scraper_uses_cache(tmp_path: Path, allow_all_parser: robotparser.RobotF
 
 def test_scraper_respects_robots(tmp_path: Path) -> None:
     parser = robotparser.RobotFileParser()
-    parser.parse(["User-agent: *", "Disallow: /intraday/"])
+    parser.parse(["User-agent: *", "Disallow: /intraday"])
     config = ScraperConfig(base_url="https://example.com", endpoint="intraday", cache_dir=tmp_path)
     scraper = MarketDataScraper(config, session=DummySession(DummyResponse({})), robot_parser=parser)
 
     with pytest.raises(PermissionError):
         scraper.get_intraday_prices("SPY", "start", "end")
+
+
+def test_scraper_preserves_base_path(tmp_path: Path) -> None:
+    payload = {"prices": []}
+    session = DummySession(DummyResponse(payload))
+    parser = robotparser.RobotFileParser()
+    parser.parse(["User-agent: *", "Allow: /data/api/intraday"])
+    config = ScraperConfig(
+        base_url="https://example.com/data/api",
+        endpoint="intraday",
+        cache_dir=tmp_path,
+    )
+    scraper = MarketDataScraper(config, session=session, robot_parser=parser)
+
+    scraper.get_intraday_prices("QQQ", "start", "end")
+
+    assert session.calls
+    url, _kwargs = session.calls[0]
+    assert url == "https://example.com/data/api/intraday"
