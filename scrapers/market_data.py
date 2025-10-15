@@ -65,7 +65,8 @@ class MarketDataScraper:
         endpoint_path = self.config.endpoint.lstrip("/")
         base_url = self._normalize_base_url(self.config.base_url)
         full_url = urljoin(base_url, endpoint_path)
-        if not self._is_allowed(full_url):
+        robots_path = self._format_robots_path(endpoint_path)
+        if not self._is_allowed(robots_path):
             raise PermissionError(f"Robots.txt disallows access to {endpoint_path}")
 
         response_json = self._request_with_retries(full_url, params)
@@ -128,6 +129,16 @@ class MarketDataScraper:
         if base_url.endswith("/"):
             return base_url
         return f"{base_url}/"
+
+    @staticmethod
+    def _format_robots_path(endpoint_path: str) -> str:
+        normalized = endpoint_path.lstrip("/")
+        if not normalized:
+            return "/"
+        robots_path = f"/{normalized}"
+        if robots_path.endswith("/"):
+            return robots_path
+        return f"{robots_path}/"
 
     @staticmethod
     def _extract_origin(url: str) -> str:
