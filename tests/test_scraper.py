@@ -67,6 +67,21 @@ def test_scraper_uses_cache(tmp_path: Path, allow_all_parser: robotparser.RobotF
     assert session.calls[0][0] == "https://example.com/api/intraday"
 
 
+def test_scraper_preserves_base_path_segments(tmp_path: Path, allow_all_parser: robotparser.RobotFileParser) -> None:
+    payload = {"prices": []}
+    session = DummySession(DummyResponse(payload))
+    config = ScraperConfig(
+        base_url="https://example.com/api/",
+        endpoint="intraday/",
+        cache_dir=tmp_path,
+    )
+    scraper = MarketDataScraper(config, session=session, robot_parser=allow_all_parser)
+
+    scraper.get_intraday_prices("SPY", "start", "end")
+
+    assert session.calls[0][0] == "https://example.com/api/intraday/"
+
+
 def test_scraper_respects_robots(tmp_path: Path) -> None:
     parser = robotparser.RobotFileParser()
     parser.parse(["User-agent: *", "Disallow: /intraday/"])

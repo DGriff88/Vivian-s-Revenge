@@ -8,7 +8,10 @@ and execution.
 ## Features
 
 - **Scrapers**: `scrapers/` fetches market data with caching, retry/backoff, robots.txt
-  compliance, and rate limiting.
+  compliance, and rate limiting. Configure scraper `base_url` values with the full API
+  root (including any path segments) and a trailing slash, for example
+  `https://example.com/api/`, so endpoints join as relative paths while robots.txt is
+  checked against `/endpoint/`.
 - **Normalizers**: `normalizers/` standardizes raw payloads into clean OHLC structures.
 - **Signals**: `signals/` houses momentum-based signal calculation utilities.
 - **Risk**: `risk/` enforces configurable position, notional, and trade-count limits.
