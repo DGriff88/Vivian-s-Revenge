@@ -99,7 +99,14 @@ class MarketDataScraper:
     def _build_endpoint_url(self) -> str:
         base = self.config.base_url.rstrip("/") + "/"
         endpoint = self.config.endpoint.lstrip("/")
-        return urljoin(base, endpoint)
+        full_url = urljoin(base, endpoint)
+
+        # Preserve trailing slashes so robots.txt directory rules such as
+        # "Disallow: /intraday/" continue to match the requested path.
+        if self.config.endpoint.endswith("/") and not full_url.endswith("/"):
+            full_url += "/"
+
+        return full_url
 
     def _ensure_robot_parser(self) -> None:
         if self._robot_parser is not None:
