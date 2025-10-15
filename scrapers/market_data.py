@@ -62,8 +62,9 @@ class MarketDataScraper:
 
         self._enforce_rate_limit()
         self._ensure_robot_parser()
-        endpoint_path = f"{self.config.endpoint.strip('/')}/"
-        full_url = urljoin(self.config.base_url, endpoint_path)
+        endpoint_path = self.config.endpoint.lstrip("/")
+        base_url = self._normalize_base_url(self.config.base_url)
+        full_url = urljoin(base_url, endpoint_path)
         if not self._is_allowed(full_url):
             raise PermissionError(f"Robots.txt disallows access to {endpoint_path}")
 
@@ -98,7 +99,9 @@ class MarketDataScraper:
     def _ensure_robot_parser(self) -> None:
         if self._robot_parser is not None:
             return
-        robots_url = urljoin(self.config.base_url, "/robots.txt")
+        base_url = self._normalize_base_url(self.config.base_url)
+        root = self._extract_origin(base_url)
+        robots_url = urljoin(root, "robots.txt")
         headers = {"User-Agent": self.config.user_agent}
         try:
             response = self.session.get(robots_url, headers=headers, timeout=self.config.timeout_seconds)
@@ -114,7 +117,22 @@ class MarketDataScraper:
         path = urlsplit(url_or_path).path
         if not path:
             path = url_or_path
-        return self._robot_parser.can_fetch(self.config.user_agent, path)
+        primary_allowed = self._robot_parser.can_fetch(self.config.user_agent, path)
+        if path.endswith("/"):
+            return primary_allowed
+        alt_path = f"{path.rstrip('/')}/"
+        return primary_allowed and self._robot_parser.can_fetch(self.config.user_agent, alt_path)
+
+    @staticmethod
+    def _normalize_base_url(base_url: str) -> str:
+        if base_url.endswith("/"):
+            return base_url
+        return f"{base_url}/"
+
+    @staticmethod
+    def _extract_origin(url: str) -> str:
+        parts = urlsplit(url)
+        return f"{parts.scheme}://{parts.netloc}/"
 
     def _enforce_rate_limit(self) -> None:
         now = time.monotonic()
