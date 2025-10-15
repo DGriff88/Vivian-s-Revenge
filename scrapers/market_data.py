@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 from urllib import robotparser
 
 import requests
@@ -62,19 +62,19 @@ class MarketDataScraper:
 
         self._enforce_rate_limit()
         self._ensure_robot_parser()
-        endpoint_path = f"/{self.config.endpoint.strip('/')}/"
-        if not self._is_allowed(endpoint_path):
+        endpoint_path = f"{self.config.endpoint.strip('/')}/"
+        full_url = urljoin(self.config.base_url, endpoint_path)
+        if not self._is_allowed(full_url):
             raise PermissionError(f"Robots.txt disallows access to {endpoint_path}")
 
-        response_json = self._request_with_retries(endpoint_path, params)
+        response_json = self._request_with_retries(full_url, params)
         self._write_cache(cache_key, response_json)
         return response_json
 
     # Internal helpers -------------------------------------------------
 
-    def _request_with_retries(self, path: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _request_with_retries(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
         retries = 0
-        url = urljoin(self.config.base_url, path)
         headers = {"User-Agent": self.config.user_agent}
         while True:
             try:
@@ -109,8 +109,11 @@ class MarketDataScraper:
         parser.parse(response.text.splitlines())
         self._robot_parser = parser
 
-    def _is_allowed(self, path: str) -> bool:
+    def _is_allowed(self, url_or_path: str) -> bool:
         assert self._robot_parser is not None, "Robot parser must be initialized"
+        path = urlsplit(url_or_path).path
+        if not path:
+            path = url_or_path
         return self._robot_parser.can_fetch(self.config.user_agent, path)
 
     def _enforce_rate_limit(self) -> None:
