@@ -26,6 +26,24 @@ and execution.
 - Python 3.10+
 - Dependencies listed in `requirements.txt` or installable via the `pyproject.toml`.
 
+## Quickstart
+
+Clone the repository, set up a virtual environment, install dependencies, and run
+the mock pipeline end-to-end.
+
+```bash
+git clone https://github.com/your-org/vivian-s-revenge.git
+cd vivian-s-revenge
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m cli.main SPY --data-dir .vivian_data
+```
+
+The command above runs the entire flow in mock mode, caching any downloaded market
+data, generating signals, enforcing risk rules, and writing audit logs to
+`audit_logs.jsonl` by default.
+
 ## Installation
 
 ```bash
@@ -40,8 +58,8 @@ pip install -r requirements.txt
 python -m cli.main SPY --data-dir .vivian_data
 ```
 
-The pipeline operates in mock mode, downloading (or using cached) market data, generating
-signals, enforcing risk checks, and writing audit logs to `audit_logs.jsonl` by default.
+The pipeline operates in mock mode unless you explicitly opt into live execution (see
+below).
 
 ## Live Execution Safety
 
