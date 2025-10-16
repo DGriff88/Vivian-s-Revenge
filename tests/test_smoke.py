@@ -24,7 +24,7 @@ def test_end_to_end_smoke(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("AUDIT_LOG_PATH", str(tmp_path / "audit.log"))
     monkeypatch.setattr("scrapers.market_data.MarketDataScraper.get_intraday_prices", fake_fetch)
 
-    run_pipeline("SPY", tmp_path)
+    result = run_pipeline("SPY", tmp_path)
 
     audit_log = tmp_path / "audit.log"
     assert audit_log.exists()
@@ -33,3 +33,6 @@ def test_end_to_end_smoke(monkeypatch, tmp_path: Path) -> None:
     assert entries
     assert entries[0]["status"] == "filled"
     assert entries[0]["symbol"] == "SPY"
+    assert result["dry_run"]["status"] == "filled"
+    assert result["live_execution"]["status"] == "live_execution_blocked"
+    assert "strategy_spec" in result
