@@ -17,7 +17,9 @@ and execution.
 - **Risk**: `risk/` enforces configurable position, notional, and trade-count limits.
 - **Executor**: `executor/mock.py` simulates fills while writing JSONL audit logs.
   `executor/live.py` introduces strict gating for any real execution.
-- **CLI**: `cli/main.py` orchestrates an end-to-end mock pipeline.
+- **CLI**: `cli/main.py` orchestrates an end-to-end mock pipeline and emits JSON
+  summaries covering the strategy spec, dry-run result, and live-execution
+  gating requirements.
 - **Tests**: `tests/` includes unit coverage for each subsystem plus a smoke test for the
   pipeline.
 
@@ -58,8 +60,15 @@ pip install -r requirements.txt
 python -m cli.main SPY --data-dir .vivian_data
 ```
 
-The pipeline operates in mock mode unless you explicitly opt into live execution (see
-below).
+The command prints a JSON document with:
+
+1. **`strategy_spec`** – a machine-readable description of the momentum leg(s).
+2. **`dry_run`** – simulated execution details or the reason a trade was skipped.
+3. **`live_execution`** – explicit confirmation requirements before live trading
+   can be enabled.
+
+The pipeline operates in mock mode unless you explicitly opt into live execution
+(see below).
 
 ## Live Execution Safety
 
