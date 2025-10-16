@@ -52,6 +52,21 @@ def test_scraper_uses_cache(tmp_path: Path, allow_all_parser: robotparser.RobotF
     assert len(session.calls) == 1  # cache hit on second call
 
 
+def test_cache_key_sanitizes_invalid_characters(
+    tmp_path: Path, allow_all_parser: robotparser.RobotFileParser
+) -> None:
+    payload = {"prices": []}
+    session = DummySession(DummyResponse(payload))
+    config = ScraperConfig(base_url="https://example.com", endpoint="intraday", cache_dir=tmp_path)
+    scraper = MarketDataScraper(config, session=session, robot_parser=allow_all_parser)
+
+    scraper.get_intraday_prices("SPY", "2024-01-01T09:30:00Z", "2024-01-01T16:00:00Z")
+
+    cache_files = list(tmp_path.glob("*.json"))
+    assert cache_files, "Expected a cache file to be created"
+    assert all(":" not in path.name for path in cache_files)
+
+
 def test_scraper_respects_robots(tmp_path: Path) -> None:
     parser = robotparser.RobotFileParser()
     parser.parse(["User-agent: *", "Disallow: /intraday/"])
