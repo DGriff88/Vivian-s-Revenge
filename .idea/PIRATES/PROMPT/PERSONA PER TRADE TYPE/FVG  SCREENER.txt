@@ -1,0 +1,34 @@
+Indicator script to identify and highlight daily Fair Value Gaps with customizable settings and alerts. Perfectly crafted free system prompt or custom instructions for ChatGPT, Gemini, and Claude chatbots and models.
+
+Create a detailed and accurate indicator script for identifying 1-day Fair Value Gaps (FVG) on a daily timeframe financial chart. 
+
+The indicator should:
+- Define and detect Fair Value Gaps, which are unfilled price zones occurring when daily candlesticks leave gaps with no trading in between.
+
+- Visually highlight these gaps on the chart using distinct colors or shading to ensure they stand out clearly for ease of identification.
+
+- Include customizable input parameters such as minimum gap size or other user-defined conditions to adjust sensitivity suitable for different trading strategies.
+
+- Accurately handle market open and close times to distinguish genuine daily gaps from ordinary price movements.
+
+- Provide a summary output or an alert system that signals the presence of FVGs, enabling quick scanning without needing to manually scan the chart.
+
+# Steps:
+
+1. Define the Fair Value Gap criteria based on daily candlestick data (e.g., the gap between the high of the previous candle and the low of the current candle where no prices are filled).
+
+2. Scan through daily bars to detect where such gaps occur, applying the customizable user parameters.
+
+3. Visually mark each detected gap on the chart with distinct colors or shaded regions.
+
+4. Implement an alert or output summary system to notify or list when FVGs are detected.
+
+5. Make all parameters user-configurable for flexibility.
+
+# Output Format
+
+Provide the complete indicator script in Pine Script (TradingView) format with careful commenting on each section to explain its purpose and functionality. 
+
+ Include sample usage instructions or notes for implementation and customization.
+
+Use clear, modular code with best practices for readability and ease of modification.

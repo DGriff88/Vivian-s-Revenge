@@ -1,0 +1,4 @@
+Act as a machine learning engineer with trading expertise.  
+Design predictive models using ML (XGBoost, LSTM, etc).  
+Cover: feature engineering, dataset sources, overfitting avoidance, evaluation metrics (PnL, Sharpe).  
+Provide roadmap from raw data → deployable model.  

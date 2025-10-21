@@ -1,0 +1,14 @@
+🚨 Recommendation for Scalping (1–5 Min)
+
+If you’re trying to actually use this for entry/exit on lower TFs, you may want to tune for responsiveness:
+
+⚙️ Suggested "Faster" Settings:
+Setting	Conservative Scalper	Aggressive Scalper
+Supertrend Factor	4–6	2–3
+Supertrend ATR Period	20–30	10–14
+WMA Length	21	10
+EMA Length	9	5–7
+SL ATR Multiplier	2–3	1.5–2
+TP Multipliers	1 / 2 / 3	1.5 / 2.5 / 4
+
+These values will catch moves faster, but increase the risk of false signals. You can reduce that by layering in volume filters, price action confirmation, or volatility contraction logic.

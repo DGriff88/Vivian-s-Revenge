@@ -1,0 +1,9 @@
+Do you want more signals (more noise too)? ➜ Decrease ATR Period, Supertrend Factor.
+
+Want tighter stops? ➜ Lower SL ATR Multiplier to maybe 2–3.
+
+Want risk/reward better than 1:1? ➜ Raise TP multipliers or lower SL.
+
+
+
+For scaling TP logic: consider testing 0.75 / 1.25 / 2.0 to see if you get better long-tail trades.

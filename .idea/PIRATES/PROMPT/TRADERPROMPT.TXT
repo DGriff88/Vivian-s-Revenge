@@ -1,0 +1,14 @@
+PROMPTS
+
+
+1. Market analysis and trend identification
+Prompt: "Analyze the current trends in the [input sector or index, e.g., technology, S&P 500]. Identify emerging patterns, recent market news, and provide potential trading opportunities based on this data. Explain the reasoning behind your analysis." 
+
+2. Portfolio diversification and risk assessment
+Prompt: "Given my current portfolio holdings are [list holdings, e.g., 'AAPL, TSLA, MSFT'], suggest diversification strategies to minimize risk. Explore different sectors and provide recommendations for new stocks or ETFs to consider." 
+
+3. Backtesting a specific trading strategy
+Prompt: "Explain how to backtest a [input strategy, e.g., moving average crossover, RSI signal] trading strategy. Provide a step-by-step guide and outline the parameters I should consider, such as entry/exit signals, stop-loss, and take-profit levels." 
+
+4. Technical analysis and indicator explanation
+Prompt: "Provide a detailed technical analysis for [stock ticker, e.g., AAPL] using indicators such as RSI, MACD, and Bollinger Bands. Summarize the findings and offer a potential buy/sell/hold recommendation based on these indicators. I'm looking for an objective description, not trade advice." 
