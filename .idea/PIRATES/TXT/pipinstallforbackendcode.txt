@@ -1,6 +1,0 @@
-# Recommended installation for the core tools
-pip install fastapi uvicorn pandas yfinance numpy
-# TA-Lib is a prerequisite for advanced indicators. Installation can be tricky.
-# If the line below fails, search for "install ta-lib windows" or "install ta-lib mac"
-# It may require a system dependency. If you already have the core trading bot setup, this should be installed.
-pip install TA-Lib

@@ -1,4 +1,0 @@
-Act as a day trader educator.  
-Pick one strategy/tool/market structure.  
-Explain its history, mechanics, pros/cons, pitfalls, and future use cases.  
-Provide examples and risk management context.  
