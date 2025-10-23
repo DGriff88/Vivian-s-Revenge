@@ -6,6 +6,7 @@ from risk.filters import RiskConfig, RiskFilter, RiskViolation
 
 
 def test_risk_filter_blocks_position() -> None:
+    """Risk filter should prevent positions that exceed configured limits."""
     config = RiskConfig(max_position=5, max_notional=1000.0, max_daily_trades=1)
     risk = RiskFilter(config)
 
@@ -14,6 +15,7 @@ def test_risk_filter_blocks_position() -> None:
 
 
 def test_risk_filter_allows_within_limits() -> None:
+    """Risk filter allows trades within size and notional thresholds."""
     config = RiskConfig(max_position=5, max_notional=1000.0, max_daily_trades=2)
     risk = RiskFilter(config)
 

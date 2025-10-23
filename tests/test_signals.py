@@ -3,6 +3,10 @@ from __future__ import annotations
 import pytest
 
 from signals.momentum import SignalResult, momentum_signal
+
+
+def test_momentum_signal_positive() -> None:
+    """Momentum signal should flip positive when the short MA is higher."""
 from signals.spec import build_momentum_strategy_spec
 
 
@@ -15,6 +19,9 @@ def test_momentum_signal_positive() -> None:
 
 
 def test_momentum_signal_requires_sufficient_data() -> None:
+    """Momentum signal enforces sufficient historical data availability."""
+    with pytest.raises(ValueError):
+        momentum_signal([1, 2], short_window=2, long_window=3)
     with pytest.raises(ValueError):
         momentum_signal([1, 2], short_window=2, long_window=3)
 

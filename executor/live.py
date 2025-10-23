@@ -15,6 +15,14 @@ class LiveExecutionNotApproved(RuntimeError):
 
 
 class LiveExecutor(Executor):
+    """Executor wrapper that enforces human approval before live trading."""
+
+    def __init__(self, broker_api_key: Optional[str] = None) -> None:
+        """Capture the broker API key from arguments or environment."""
+        self.broker_api_key = broker_api_key or os.getenv("BROKER_API_KEY")
+
+    def execute(self, order: OrderRequest, price: float) -> ExecutionReport:  # pragma: no cover - live path disabled
+        """Validate gating conditions before delegating to a live broker."""
     def __init__(self, broker_api_key: Optional[str] = None) -> None:
         self.broker_api_key = broker_api_key or os.getenv("BROKER_API_KEY")
 

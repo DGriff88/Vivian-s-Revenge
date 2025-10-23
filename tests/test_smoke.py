@@ -8,6 +8,7 @@ from cli.main import run_pipeline
 
 
 def test_end_to_end_smoke(monkeypatch, tmp_path: Path) -> None:
+    """Run the CLI pipeline end-to-end in mock mode and assert audit logging."""
     sample_payload: Dict[str, object] = {
         "prices": [
             {"timestamp": "2024-01-01T09:30:00Z", "open": 1, "high": 1.2, "low": 0.9, "close": 1.1, "volume": 1000},
@@ -19,11 +20,13 @@ def test_end_to_end_smoke(monkeypatch, tmp_path: Path) -> None:
     }
 
     def fake_fetch(self, symbol: str, start: str, end: str):  # pragma: no cover - simple stub
+        """Return deterministic sample payload for the smoke test."""
         return sample_payload
 
     monkeypatch.setenv("AUDIT_LOG_PATH", str(tmp_path / "audit.log"))
     monkeypatch.setattr("scrapers.market_data.MarketDataScraper.get_intraday_prices", fake_fetch)
 
+    run_pipeline("SPY", tmp_path)
     result = run_pipeline("SPY", tmp_path)
 
     audit_log = tmp_path / "audit.log"

@@ -15,11 +15,13 @@ class MockExecutor(Executor):
     """Simulate order execution and persist audit logs."""
 
     def __init__(self, audit_log_path: Optional[Path] = None) -> None:
+        """Initialise the executor and ensure the audit log destination exists."""
         default_path = os.getenv("AUDIT_LOG_PATH", "audit_logs.jsonl")
         self.audit_log_path = Path(audit_log_path or default_path)
         self.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
 
     def execute(self, order: OrderRequest, price: float) -> ExecutionReport:
+        """Return a filled execution report and append an audit trail entry."""
         report = ExecutionReport(
             order=order,
             status="filled",
@@ -30,6 +32,7 @@ class MockExecutor(Executor):
         return report
 
     def _write_audit_log(self, report: ExecutionReport) -> None:
+        """Append the provided execution report to the audit log file."""
         payload = {
             "symbol": report.order.symbol,
             "side": report.order.side,

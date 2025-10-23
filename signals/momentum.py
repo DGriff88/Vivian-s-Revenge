@@ -15,6 +15,7 @@ class SignalResult:
 
 
 def _moving_average(series: List[float]) -> float:
+    """Compute the arithmetic mean for the provided series."""
     if not series:
         raise ValueError("Series cannot be empty for moving average computation")
     return mean(series)

@@ -8,6 +8,7 @@ from typing import Dict
 
 
 def _current_time() -> datetime:
+    """Return the current UTC timestamp for execution reports."""
     return datetime.now(UTC)
 
 

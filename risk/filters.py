@@ -12,17 +12,24 @@ class RiskViolation(Exception):
 
 @dataclass
 class RiskConfig:
+    """Configuration for risk tolerances enforced by the filter."""
+
     max_position: int
     max_notional: float
     max_daily_trades: int
 
 
 class RiskFilter:
+    """Apply configured risk rules to candidate orders."""
+
+    def __init__(self, config: RiskConfig) -> None:
+        """Store the risk configuration and reset counters."""
     def __init__(self, config: RiskConfig) -> None:
         self.config = config
         self._daily_trade_count = 0
 
     def reset_daily_counters(self) -> None:
+        """Reset the accumulated count of trades for the current day."""
         self._daily_trade_count = 0
 
     def validate(self, order: Dict[str, float], current_position: int, price: float) -> None:
