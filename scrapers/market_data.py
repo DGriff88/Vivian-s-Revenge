@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 from urllib import robotparser
 
 import requests
@@ -70,6 +71,14 @@ class MarketDataScraper:
             raise PermissionError(f"Robots.txt disallows access to {endpoint_path}")
 
         response_json = self._request_with_retries(endpoint_path, params)
+        endpoint_path = self.config.endpoint.lstrip("/")
+        base_url = self._normalize_base_url(self.config.base_url)
+        full_url = urljoin(base_url, endpoint_path)
+        robots_path = self._format_robots_path(endpoint_path)
+        if not self._is_allowed(robots_path):
+            raise PermissionError(f"Robots.txt disallows access to {endpoint_path}")
+
+        response_json = self._request_with_retries(full_url, params)
         self._write_cache(cache_key, response_json)
         return response_json
 
@@ -79,6 +88,8 @@ class MarketDataScraper:
         """Perform an HTTP GET with exponential backoff retries."""
         retries = 0
         url = urljoin(self.config.base_url, path)
+    def _request_with_retries(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        retries = 0
         headers = {"User-Agent": self.config.user_agent}
         while True:
             try:
@@ -104,6 +115,11 @@ class MarketDataScraper:
         if self._robot_parser is not None:
             return
         robots_url = urljoin(self.config.base_url, "/robots.txt")
+        if self._robot_parser is not None:
+            return
+        base_url = self._normalize_base_url(self.config.base_url)
+        root = self._extract_origin(base_url)
+        robots_url = urljoin(root, "robots.txt")
         headers = {"User-Agent": self.config.user_agent}
         try:
             response = self.session.get(robots_url, headers=headers, timeout=self.config.timeout_seconds)
@@ -121,6 +137,39 @@ class MarketDataScraper:
 
     def _enforce_rate_limit(self) -> None:
         """Throttle HTTP requests to comply with configured rate limits."""
+    def _is_allowed(self, url_or_path: str) -> bool:
+        assert self._robot_parser is not None, "Robot parser must be initialized"
+        path = urlsplit(url_or_path).path
+        if not path:
+            path = url_or_path
+        primary_allowed = self._robot_parser.can_fetch(self.config.user_agent, path)
+        if path.endswith("/"):
+            return primary_allowed
+        alt_path = f"{path.rstrip('/')}/"
+        return primary_allowed and self._robot_parser.can_fetch(self.config.user_agent, alt_path)
+
+    @staticmethod
+    def _normalize_base_url(base_url: str) -> str:
+        if base_url.endswith("/"):
+            return base_url
+        return f"{base_url}/"
+
+    @staticmethod
+    def _format_robots_path(endpoint_path: str) -> str:
+        normalized = endpoint_path.lstrip("/")
+        if not normalized:
+            return "/"
+        robots_path = f"/{normalized}"
+        if robots_path.endswith("/"):
+            return robots_path
+        return f"{robots_path}/"
+
+    @staticmethod
+    def _extract_origin(url: str) -> str:
+        parts = urlsplit(url)
+        return f"{parts.scheme}://{parts.netloc}/"
+
+    def _enforce_rate_limit(self) -> None:
         now = time.monotonic()
         elapsed = now - self._last_request_ts
         if elapsed < self.config.rate_limit_seconds:
@@ -135,6 +184,9 @@ class MarketDataScraper:
 
     def _read_cache(self, cache_key: str) -> Optional[Dict[str, Any]]:
         """Return cached payloads if present and not expired."""
+        return self._cache_dir / cache_key
+
+    def _read_cache(self, cache_key: str) -> Optional[Dict[str, Any]]:
         path = self._cache_path(cache_key)
         if not path.exists():
             return None

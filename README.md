@@ -9,12 +9,19 @@ and execution.
 
 - **Scrapers**: `scrapers/` fetches market data with caching, retry/backoff, robots.txt
   compliance, and rate limiting.
+  compliance, and rate limiting. Configure scraper `base_url` values with the full API
+  root (including any path segments) and a trailing slash, for example
+  `https://example.com/api/`, so endpoints join as relative paths while robots.txt is
+  checked against `/endpoint/`.
 - **Normalizers**: `normalizers/` standardizes raw payloads into clean OHLC structures.
 - **Signals**: `signals/` houses momentum-based signal calculation utilities.
 - **Risk**: `risk/` enforces configurable position, notional, and trade-count limits.
 - **Executor**: `executor/mock.py` simulates fills while writing JSONL audit logs.
   `executor/live.py` introduces strict gating for any real execution.
 - **CLI**: `cli/main.py` orchestrates an end-to-end mock pipeline.
+- **CLI**: `cli/main.py` orchestrates an end-to-end mock pipeline and emits JSON
+  summaries covering the strategy spec, dry-run result, and live-execution
+  gating requirements.
 - **Tests**: `tests/` includes unit coverage for each subsystem plus a smoke test for the
   pipeline.
 
@@ -39,6 +46,31 @@ pip install -r requirements.txt
   a bundled sample dataset so you can experiment without credentials.
 - **Extensibility**: Swap out any module (e.g., replace the scraper or signal) by
   editing the dedicated package and running the tests.
+## Quickstart
+
+Clone the repository, set up a virtual environment, install dependencies, and run
+the mock pipeline end-to-end.
+
+```bash
+git clone https://github.com/your-org/vivian-s-revenge.git
+cd vivian-s-revenge
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m cli.main SPY --data-dir .vivian_data
+```
+
+The command above runs the entire flow in mock mode, caching any downloaded market
+data, generating signals, enforcing risk rules, and writing audit logs to
+`audit_logs.jsonl` by default.
+
+## Installation
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Running the Mock Pipeline
 
@@ -62,6 +94,15 @@ When no API credentials are available the bundled sample data located at
    have met the gating requirements and obtained human approval.
 5. **CLI**: Adjust `cli/main.py` to orchestrate any new modules or to pass additional
    context (e.g., portfolio state) into the pipeline.
+The command prints a JSON document with:
+
+1. **`strategy_spec`** – a machine-readable description of the momentum leg(s).
+2. **`dry_run`** – simulated execution details or the reason a trade was skipped.
+3. **`live_execution`** – explicit confirmation requirements before live trading
+   can be enabled.
+
+The pipeline operates in mock mode unless you explicitly opt into live execution
+(see below).
 
 ## Live Execution Safety
 

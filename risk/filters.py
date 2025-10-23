@@ -24,6 +24,7 @@ class RiskFilter:
 
     def __init__(self, config: RiskConfig) -> None:
         """Store the risk configuration and reset counters."""
+    def __init__(self, config: RiskConfig) -> None:
         self.config = config
         self._daily_trade_count = 0
 
